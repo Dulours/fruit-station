@@ -8,11 +8,14 @@ public class S_SpawnFruits : MonoBehaviour
     public GameObject[] fruits;
     public float maxSpawnTime = 5f;
     public float minSpawnTime = 1f;
+    public float spawnSpeedMult = 2f;
     public bool canSpawn = true;
     private GameObject newFruit;
     private float timeElapsed = 0f;
     private float spawnTime;
     private float spawnZValue = 10.25f;
+    private float minSpawnTimeInit;
+    private float maxSpawnTimeInit;
 
     // Player health
     public GameObject Player;
@@ -22,6 +25,10 @@ public class S_SpawnFruits : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        // Get the min & max spawn time initial values
+        minSpawnTimeInit = minSpawnTime;
+        maxSpawnTimeInit = maxSpawnTime;
+
         // Set up first spawn time
         spawnTime = Random.Range(minSpawnTime, maxSpawnTime);
         timeElapsed = 0f;
@@ -34,6 +41,10 @@ public class S_SpawnFruits : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Reduce min and max spawn time as time passes
+        minSpawnTime = Mathf.Clamp(minSpawnTime - spawnSpeedMult * Time.deltaTime, 0.1f, minSpawnTimeInit);
+        maxSpawnTime = Mathf.Clamp(maxSpawnTime - spawnSpeedMult * Time.deltaTime, 0.4f, maxSpawnTimeInit);
+
         // Spawn fruit when the timer is done and reset values
         timeElapsed += Time.deltaTime;
         if (timeElapsed > spawnTime && canSpawn)
@@ -43,11 +54,13 @@ public class S_SpawnFruits : MonoBehaviour
             spawnTime = Random.Range(minSpawnTime, maxSpawnTime);
         }
 
-        // Stop fruit spawn if the player has no health left
+        // Stop fruit spawn if the player has no health left and destroy the last ones
         playerHealth = playerController.healthPoints;
         if (playerHealth <= 0f)
         {
             canSpawn = false;
+            minSpawnTime = minSpawnTimeInit;
+            maxSpawnTime = maxSpawnTimeInit;
             if (Input.GetButtonDown("Restart"))
             {
                 DestroyAllFruits();
@@ -67,7 +80,12 @@ public class S_SpawnFruits : MonoBehaviour
 
     private void DestroyAllFruits()
     {
-        // créer une boucle for qui check tous les enfants et supprime tous ceux qui ne s'appellent pas "SM_PlanetStation"
+        // Détruit tous les enfants sauf la planète
+        for (int i = 0; i < transform.childCount; i++)
+            if (transform.GetChild(i).gameObject.name != "SM_PlanetStation")
+            {
+                Destroy(transform.GetChild(i).gameObject);
+            }
        
     }
 

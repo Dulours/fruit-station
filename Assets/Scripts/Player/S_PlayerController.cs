@@ -26,12 +26,20 @@ public class S_PlayerController : MonoBehaviour
 
     // Health
     public float healthPoints = 3f;
-
+    public GameObject mainCam;
+    private S_ScreenShake camShake;
+    private GameObject meshBase;
+    private GameObject meshMid;
+    private GameObject meshLow;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         body = GetComponent<Rigidbody>();
+        camShake = mainCam.GetComponent<S_ScreenShake>();
+        meshBase = gameObject.transform.GetChild(0).gameObject;
+        meshMid = gameObject.transform.GetChild(1).gameObject;
+        meshLow = gameObject.transform.GetChild(2).gameObject;
     }
 
     // Update is called once per frame
@@ -70,6 +78,14 @@ public class S_PlayerController : MonoBehaviour
                 startingDashPos = transform.position;
                 StartCoroutine(DashCurve(-1f));
             }                       
+        }
+
+        // Display base mesh if health points are full (useful after a restart, might want to move that into the Flow manager
+        if (healthPoints >= 3)
+        {
+            meshBase.SetActive(true);
+            meshMid.SetActive(false);
+            meshLow.SetActive(false);
         }
     }
 
@@ -148,7 +164,21 @@ public class S_PlayerController : MonoBehaviour
         {
             Destroy(collision.gameObject);
             healthPoints -= 1;
-            print(healthPoints);
+            camShake.isShaking = true;
+
+            // Display correct mesh depending on health left
+            if (healthPoints == 2)
+            {
+                meshBase.SetActive(false);
+                meshMid.SetActive(true);
+                meshLow.SetActive(false);
+            }
+            else if (healthPoints <= 1)
+            {
+                meshBase.SetActive(false);
+                meshMid.SetActive(false);
+                meshLow.SetActive(true);
+            }
         }
     }
 }

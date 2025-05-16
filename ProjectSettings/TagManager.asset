@@ -9,11 +9,11 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - OutlinedObjects
   - Water
   - UI
-  - 
-  - 
+  - OutlinedObjects_Mid
+  - OutlinedObjects_Low
   - 
   - 
   - 
