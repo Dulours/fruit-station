@@ -31,6 +31,7 @@ public class S_PlayerController : MonoBehaviour
     private GameObject meshBase;
     private GameObject meshMid;
     private GameObject meshLow;
+    private GameObject currentMesh;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -67,15 +68,17 @@ public class S_PlayerController : MonoBehaviour
 
         // Check the input direction when pressing dash button
         if(canDash && Input.GetButtonDown("Dash"))
-        {
+        {            
             if (horizontalInput > 0 && canDashRight)
             {
                 startingDashPos = transform.position;
+                currentMesh.GetComponent<Animator>().SetTrigger("isDashing");
                 StartCoroutine(DashCurve(1f));
             }
             else if (horizontalInput < 0 && canDashLeft)
             {
                 startingDashPos = transform.position;
+                currentMesh.GetComponent<Animator>().SetTrigger("isDashing");
                 StartCoroutine(DashCurve(-1f));
             }                       
         }
@@ -86,6 +89,8 @@ public class S_PlayerController : MonoBehaviour
             meshBase.SetActive(true);
             meshMid.SetActive(false);
             meshLow.SetActive(false);
+            currentMesh = meshBase;
+            currentMesh.GetComponent<Animator>().SetBool("isDead", false);
         }
     }
 
@@ -172,13 +177,23 @@ public class S_PlayerController : MonoBehaviour
                 meshBase.SetActive(false);
                 meshMid.SetActive(true);
                 meshLow.SetActive(false);
+                currentMesh = meshMid;
+                currentMesh.GetComponent<Animator>().SetTrigger("isHit");
             }
-            else if (healthPoints <= 1)
+            else if (healthPoints == 1)
             {
                 meshBase.SetActive(false);
                 meshMid.SetActive(false);
                 meshLow.SetActive(true);
+                currentMesh = meshLow;
+                currentMesh.GetComponent<Animator>().SetTrigger("isHit");
             }
+            else if (healthPoints <= 0)
+            {
+                currentMesh.GetComponent<Animator>().SetBool("isDead", true);
+            }
+
+
         }
     }
 }
