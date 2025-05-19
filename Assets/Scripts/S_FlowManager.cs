@@ -84,5 +84,6 @@ public class S_FlowManager : MonoBehaviour
         // Reset timer and let it run again
         timerScript.timeStarted = true;
         timerScript.timer = 0f;
+        timerScript.isInPause = false;
     }
 }

@@ -12,7 +12,7 @@ public class S_PlayerController : MonoBehaviour
     private float speedChange = 0f;
     public bool canMove = true;
     private Vector3 desiredVelocity;
-    private Vector3 velocity;    
+    private Vector3 velocity;
     private Rigidbody body;
 
     // Dash
@@ -33,6 +33,15 @@ public class S_PlayerController : MonoBehaviour
     private GameObject meshLow;
     private GameObject currentMesh;
 
+    //VFX
+    public ParticleSystem fruitExplosionApple;
+    public ParticleSystem fruitExplosionBanana;
+    public ParticleSystem fruitExplosionOrange;
+    public ParticleSystem fruitExplosionStrawberry;
+    public ParticleSystem fruitExplosionWatermelon;
+    public ParticleSystem deathVFX;
+    public ParticleSystem dashVFX;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -51,15 +60,6 @@ public class S_PlayerController : MonoBehaviour
         pos.x = Mathf.Clamp(transform.position.x, -3.3f, 3.3f);
         transform.position = pos;
 
-        // Stop movement and dash if the player's health is zero
-        if(healthPoints <= 0)
-        {
-            canMove = false;
-            canDash = false;
-            body.linearVelocity = Vector3.zero;
-            desiredVelocity = Vector3.zero;
-        }
-
         // Get the player input
         horizontalInput = Input.GetAxis("Horizontal");
 
@@ -67,8 +67,8 @@ public class S_PlayerController : MonoBehaviour
         desiredVelocity = new Vector3(horizontalInput, 0f, 0f) * moveSpeed;
 
         // Check the input direction when pressing dash button
-        if(canDash && Input.GetButtonDown("Dash"))
-        {            
+        if (canDash && Input.GetButtonDown("Dash"))
+        {
             if (horizontalInput > 0 && canDashRight)
             {
                 startingDashPos = transform.position;
@@ -80,7 +80,16 @@ public class S_PlayerController : MonoBehaviour
                 startingDashPos = transform.position;
                 currentMesh.GetComponent<Animator>().SetTrigger("isDashing");
                 StartCoroutine(DashCurve(-1f));
-            }                       
+            }
+        }
+
+        // Stop movement and dash if the player's health is zero
+        if (healthPoints <= 0)
+        {
+            canMove = false;
+            canDash = false;
+            body.linearVelocity = Vector3.zero;
+            desiredVelocity = Vector3.zero;
         }
 
         // Display base mesh if health points are full (useful after a restart, might want to move that into the Flow manager
@@ -137,6 +146,9 @@ public class S_PlayerController : MonoBehaviour
         if (direction == 1f) { canDashLeft = false; }
         if (direction == -1f) { canDashRight = false; }
 
+        // Instantiate VFX
+        Instantiate(dashVFX, transform.position, transform.rotation);
+
         // Performing a dash
         while (timeElapsed < dashVelocityX[dashVelocityX.length - 1].time)
         {
@@ -149,7 +161,7 @@ public class S_PlayerController : MonoBehaviour
         canMove = true;
         timeElapsed = 0f;
 
-        while(timeElapsed < dashCooldown)
+        while (timeElapsed < dashCooldown)
         {
             timeElapsed += Time.deltaTime;
             yield return null;
@@ -165,9 +177,33 @@ public class S_PlayerController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if(collision.gameObject.tag == "Obstacle")
+        if (collision.gameObject.tag == "Obstacle")
         {
+            // Destroy fruit and spawn according explosion
             Destroy(collision.gameObject);
+            var VFXspawnPos = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, gameObject.transform.position.z + 1f);
+            if (collision.gameObject.name.Contains("Apple") == true)
+            {
+                Instantiate(fruitExplosionApple, VFXspawnPos, gameObject.transform.rotation);
+            }
+            else if (collision.gameObject.name.Contains("Banana") == true)
+            {
+                Instantiate(fruitExplosionBanana, VFXspawnPos, gameObject.transform.rotation);
+            }
+            else if (collision.gameObject.name.Contains("Orange") == true)
+            {
+                Instantiate(fruitExplosionOrange, VFXspawnPos, gameObject.transform.rotation);
+            }
+            else if (collision.gameObject.name.Contains("Strawberry") == true)
+            {
+                Instantiate(fruitExplosionStrawberry, VFXspawnPos, gameObject.transform.rotation);
+            }
+            else if (collision.gameObject.name.Contains("Watermelon") == true)
+            {
+                Instantiate(fruitExplosionWatermelon, VFXspawnPos, gameObject.transform.rotation);
+            }
+
+
             healthPoints -= 1;
             camShake.isShaking = true;
 
@@ -190,10 +226,12 @@ public class S_PlayerController : MonoBehaviour
             }
             else if (healthPoints <= 0)
             {
+                // Play death animation & VFX
                 currentMesh.GetComponent<Animator>().SetBool("isDead", true);
+                var spawnPos = new Vector3(transform.position.x, transform.position.y + 1.575f, transform.position.z);
+                Instantiate(deathVFX, spawnPos, transform.rotation);
             }
-
-
         }
     }
+
 }

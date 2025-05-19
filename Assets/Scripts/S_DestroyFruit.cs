@@ -18,4 +18,9 @@ public class S_DestroyFruit : MonoBehaviour
         }
 
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        Destroy(gameObject);
+    }
 }
