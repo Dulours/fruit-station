@@ -8,6 +8,8 @@ public class S_FlowManager : MonoBehaviour
     public GameObject planet;
     public GameObject gameOverText;
     public GameObject timer;
+    private GameObject AudioManager;
+    private S_AudioManager audioManagerScript;
     private S_PlayerController playerController;
     private S_RotateObject rotatePlanet;
     private S_SpawnFruits fruitSpawner;
@@ -31,6 +33,8 @@ public class S_FlowManager : MonoBehaviour
         planetStartRotation = planet.transform.rotation;
         playerStartPosition = player.transform.position;
         defaultHealthPoints = playerController.healthPoints;
+        AudioManager = GameObject.Find("AudioManager");
+        audioManagerScript = AudioManager.GetComponent<S_AudioManager>();
     }
 
     // Update is called once per frame
@@ -53,6 +57,8 @@ public class S_FlowManager : MonoBehaviour
         }
         else if (isGameOver && Input.GetButtonDown("Back"))
         {
+            // Play music again
+            AudioManager.GetComponent<AudioSource>().Play();
             SceneManager.LoadScene("Menu_Scene");
         }
     }
@@ -64,6 +70,7 @@ public class S_FlowManager : MonoBehaviour
         rotatePlanet.canRotate = false;
         isGameOver = true;
         timerScript.timeStarted = false;
+        AudioManager.GetComponent<AudioSource>().Stop();
     }
 
     private void RestartGame()
@@ -85,5 +92,7 @@ public class S_FlowManager : MonoBehaviour
         timerScript.timeStarted = true;
         timerScript.timer = 0f;
         timerScript.isInPause = false;
+        // Play music again
+        AudioManager.GetComponent<AudioSource>().Play();
     }
 }

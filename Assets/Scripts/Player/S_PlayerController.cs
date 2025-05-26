@@ -42,6 +42,11 @@ public class S_PlayerController : MonoBehaviour
     public ParticleSystem deathVFX;
     public ParticleSystem dashVFX;
 
+    //SFX
+    private AudioSource audioSource;
+    public AudioClip[] dashSFX;
+    public AudioClip[] splatSFX;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -50,6 +55,7 @@ public class S_PlayerController : MonoBehaviour
         meshBase = gameObject.transform.GetChild(0).gameObject;
         meshMid = gameObject.transform.GetChild(1).gameObject;
         meshLow = gameObject.transform.GetChild(2).gameObject;
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -69,6 +75,9 @@ public class S_PlayerController : MonoBehaviour
         // Check the input direction when pressing dash button
         if (canDash && Input.GetButtonDown("Dash"))
         {
+            // Chose SFX
+            audioSource.clip = dashSFX[Random.Range(0, dashSFX.Length)];
+
             if (horizontalInput > 0 && canDashRight)
             {
                 startingDashPos = transform.position;
@@ -146,8 +155,9 @@ public class S_PlayerController : MonoBehaviour
         if (direction == 1f) { canDashLeft = false; }
         if (direction == -1f) { canDashRight = false; }
 
-        // Instantiate VFX
+        // Instantiate VFX and play SFX
         Instantiate(dashVFX, transform.position, transform.rotation);
+        audioSource.Play();
 
         // Performing a dash
         while (timeElapsed < dashVelocityX[dashVelocityX.length - 1].time)
@@ -168,7 +178,6 @@ public class S_PlayerController : MonoBehaviour
         }
 
         // End of cooldown, player can dash again
-        print("cooldown's over");
         canDash = true;
         canDashRight = true;
         canDashLeft = true;
@@ -202,6 +211,10 @@ public class S_PlayerController : MonoBehaviour
             {
                 Instantiate(fruitExplosionWatermelon, VFXspawnPos, gameObject.transform.rotation);
             }
+
+            // Play SFX
+            audioSource.clip = splatSFX[Random.Range(0, splatSFX.Length)];
+            audioSource.Play();
 
 
             healthPoints -= 1;

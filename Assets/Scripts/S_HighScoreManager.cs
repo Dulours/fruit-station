@@ -3,22 +3,36 @@ using UnityEngine;
 public class S_HighScoreManager : MonoBehaviour
 {
     public float highScore;
-    private GameObject timer;
+    public GameObject timer;
+    private S_Timer timerScript;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         DontDestroyOnLoad(this);
 
-        // En gros il faut : 
-        // Si on ne trouve pas de gameobject timer et que le highscore n'a pas encore de valeur, alors on met 0
-        // Si on trouve le gameobject timer on récupère le highscore
-        // Si on ne trouve pas le gameobject timer et que le highscore a une valeur, on affiche cette valeur
+        timer = GameObject.Find("Timer");
+        timerScript = timer.GetComponent<S_Timer>();
+        if (timer == null)
+        {
+            highScore = 0f;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if(timerScript.highScore > highScore)
+        {
+            highScore = timerScript.highScore;
+        }
+
+        print(highScore);
+    }
+    private void OnLevelWasLoaded(int level)
+    {
+        timer = GameObject.Find("Timer");
+        timerScript = timer.GetComponent<S_Timer>();
     }
 }
+
